@@ -34,18 +34,24 @@
 
     <section class="hero">
       <img class="hero-bg" src="./resort/b1d134db-e254-4543-8fdd-bbf011d1bab8.JPG" alt="" fetchpriority="high" />
+      <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-shade"></div>
-      <div class="hero-content">
-        <img class="hero-logo reveal" src="./logo parakkat.png" alt="Parakkat Nature Hotel &amp; Resorts" />
-        <h1 class="hero-title reveal">Our Menus</h1>
-        <p class="hero-sub reveal">Choose a menu to read it right here, or save it to your phone.</p>
-        <div class="hero-chips reveal" id="hero-chips"></div>
+      <div class="hero-leaves" id="hero-leaves" aria-hidden="true"></div>
+      <div class="hero-content" id="hero-content">
+        <img class="hero-logo intro" style="--i: 0" src="./logo parakkat.png" alt="Parakkat Nature Hotel &amp; Resorts" />
+        <h1 class="hero-title intro" style="--i: 1" id="hero-title">Our Menus</h1>
+        <span class="hero-rule intro" style="--i: 3" aria-hidden="true"></span>
+        <p class="hero-sub intro" style="--i: 4">Choose a menu to read it right here, or save it to your phone.</p>
+        <div class="hero-chips intro" style="--i: 5" id="hero-chips"></div>
       </div>
+      <a href="#menus" class="scroll-cue intro" style="--i: 7" aria-label="Scroll to the menus">
+        <span></span>
+      </a>
     </section>
 
     <main>
       <section class="menus" id="menus" aria-labelledby="menus-heading">
-        <div class="section-head">
+        <div class="section-head reveal">
           <p class="eyebrow">Discover</p>
           <h2 id="menus-heading">Menus &amp; Brochures</h2>
         </div>
@@ -53,7 +59,7 @@
       </section>
 
       <section class="gallery" id="gallery" aria-labelledby="gallery-heading">
-        <div class="section-head">
+        <div class="section-head reveal">
           <p class="eyebrow">Our surroundings</p>
           <h2 id="gallery-heading">A glimpse of Parakkat</h2>
         </div>

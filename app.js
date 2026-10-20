@@ -319,6 +319,91 @@
     countEl.textContent = current + ' / ' + state.pages.length;
   }
 
+  /* ---------- Home animations ---------- */
+
+  var LEAF_SVG =
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 3C10 3 4 9 4 17c0 1.4.2 2.7.6 4 1-5 4.4-9.6 9.4-12-4 3-6.8 7.2-7.6 12.6C15.6 20.4 20 14 20 3z"/></svg>';
+
+  function initHomeMotion() {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Split the hero title into letters so they can rise one by one.
+    var title = $('hero-title');
+    if (title && !reduce) {
+      var text = title.textContent;
+      title.setAttribute('aria-label', text);
+      title.innerHTML = text
+        .split('')
+        .map(function (ch, i) {
+          return ch === ' '
+            ? ' '
+            : '<span class="char" aria-hidden="true" style="--c:' + i + '">' + escapeHtml(ch) + '</span>';
+        })
+        .join('');
+      title.classList.add('is-split');
+    }
+
+    if (reduce) return;
+
+    // A handful of leaves drifting down through the hero.
+    var leaves = $('hero-leaves');
+    var count = window.innerWidth < 640 ? 7 : 12;
+    var html = '';
+    for (var i = 0; i < count; i++) {
+      var size = 10 + Math.random() * 14;
+      html +=
+        '<span class="leaf" style="--x:' + (Math.random() * 100).toFixed(1) + '%;--s:' + size.toFixed(0) +
+        'px;--d:' + (11 + Math.random() * 10).toFixed(1) + 's;--delay:' + (-Math.random() * 20).toFixed(1) +
+        's;--drift:' + (Math.random() * 160 - 80).toFixed(0) + 'px;--o:' + (0.35 + Math.random() * 0.4).toFixed(2) +
+        '">' + LEAF_SVG + '</span>';
+    }
+    leaves.innerHTML = html;
+
+    // Parallax: the photo moves slower than the page and the content fades as you scroll away.
+    var hero = document.querySelector('.hero');
+    var bg = document.querySelector('.hero-bg');
+    var content = $('hero-content');
+    var ticking = false;
+    function parallax() {
+      ticking = false;
+      var h = hero.offsetHeight;
+      var y = Math.min(window.scrollY, h);
+      bg.style.translate = '0 ' + (y * 0.35).toFixed(1) + 'px';
+      content.style.translate = '0 ' + (y * 0.18).toFixed(1) + 'px';
+      content.style.opacity = String(Math.max(0, 1 - y / (h * 0.7)));
+    }
+    window.addEventListener(
+      'scroll',
+      function () {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(parallax);
+        }
+      },
+      { passive: true }
+    );
+
+    // Cards tilt toward the pointer (mouse and trackpad only, not touch).
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      document.querySelectorAll('.menu-card').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+          var r = card.getBoundingClientRect();
+          var px = (e.clientX - r.left) / r.width;
+          var py = (e.clientY - r.top) / r.height;
+          card.classList.add('is-tilting');
+          card.style.transform =
+            'translateY(-6px) rotateX(' + ((0.5 - py) * 7).toFixed(2) + 'deg) rotateY(' + ((px - 0.5) * 9).toFixed(2) + 'deg)';
+          card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+          card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+        });
+        card.addEventListener('pointerleave', function () {
+          card.classList.remove('is-tilting');
+          card.style.transform = '';
+        });
+      });
+    }
+  }
+
   /* ---------- Wiring ---------- */
 
   function syncToHash() {
@@ -379,7 +464,7 @@
     onScroll();
 
     // Fade sections in as they scroll into view.
-    var reveals = document.querySelectorAll('.reveal');
+    var reveals = document.querySelectorAll('.reveal, .gallery-track img');
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(
         function (entries) {
@@ -390,6 +475,10 @@
             el.style.transitionDelay = Math.min(siblings, 4) * 80 + 'ms';
             el.classList.add('is-visible');
             io.unobserve(el);
+            // Drop the stagger delay once shown so hover effects respond at once.
+            setTimeout(function () {
+              el.style.transitionDelay = '';
+            }, 1200);
           });
         },
         { rootMargin: '0px 0px -8% 0px' }
@@ -402,6 +491,8 @@
         el.classList.add('is-visible');
       });
     }
+
+    initHomeMotion();
 
     window.__menusReady = true;
     syncToHash();
