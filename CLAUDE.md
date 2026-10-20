@@ -12,6 +12,8 @@ The site is deployed via GitHub Pages using `.github/workflows/static.yml`: on e
 - File and folder names must stay exactly in sync between the filesystem and the references in `index.html` / `menus/menus.js`.
 - Large binaries (menu PDFs, resort photos) are committed directly to the repo since there is no asset pipeline or CDN.
 
+Hosting is moving to Vercel (static, no build step): `vercel.json` sets cache headers and `.vercelignore` skips unused large photos. The Vercel project is linked to this repo, so pushes to `master` deploy production there too.
+
 `.github/workflows/test` is a leftover default Actions template (job named `CI`, just echoes text) — it is not part of the actual deployment and can be ignored/removed if it becomes an obstacle.
 
 ## Structure

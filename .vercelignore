@@ -1,0 +1,7 @@
+# Not used by the site; keeps the deployment small.
+.github
+.DS_Store
+**/.DS_Store
+index copy.html
+resort/IMG_*.JPG
+resort/875764565.JPG
