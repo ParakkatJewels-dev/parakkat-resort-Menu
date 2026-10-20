@@ -404,6 +404,80 @@
     }
   }
 
+  /* ---------- Gallery lightbox ---------- */
+
+  function initLightbox() {
+    var box = $('lightbox');
+    var img = $('lightbox-img');
+    var caption = $('lightbox-caption');
+    var items = Array.prototype.slice.call(document.querySelectorAll('.g-item'));
+    var current = 0;
+    var opener = null;
+    var touchX = null;
+
+    function show(i) {
+      current = (i + items.length) % items.length;
+      var src = items[current].querySelector('img');
+      img.src = src.currentSrc || src.src;
+      img.alt = src.alt;
+      caption.textContent = src.alt;
+      // Restart the fade-in for each photo.
+      img.style.animation = 'none';
+      void img.offsetWidth;
+      img.style.animation = '';
+    }
+
+    function open(i) {
+      opener = document.activeElement;
+      show(i);
+      box.hidden = false;
+      document.body.classList.add('is-reading');
+      $('lightbox-close').focus();
+    }
+
+    function close() {
+      box.hidden = true;
+      document.body.classList.remove('is-reading');
+      if (opener && opener.focus) opener.focus();
+    }
+
+    items.forEach(function (item, i) {
+      item.addEventListener('click', function () {
+        open(i);
+      });
+    });
+    $('lightbox-close').addEventListener('click', close);
+    $('lightbox-prev').addEventListener('click', function () {
+      show(current - 1);
+    });
+    $('lightbox-next').addEventListener('click', function () {
+      show(current + 1);
+    });
+    box.addEventListener('click', function (e) {
+      if (e.target === box || e.target.classList.contains('lightbox-figure')) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (box.hidden) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') show(current - 1);
+      else if (e.key === 'ArrowRight') show(current + 1);
+    });
+    // Swipe left/right on phones.
+    box.addEventListener(
+      'touchstart',
+      function (e) {
+        touchX = e.touches[0].clientX;
+      },
+      { passive: true }
+    );
+    box.addEventListener('touchend', function (e) {
+      if (touchX === null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      touchX = null;
+      if (Math.abs(dx) > 40) show(current + (dx < 0 ? 1 : -1));
+    });
+  }
+
   /* ---------- Wiring ---------- */
 
   function syncToHash() {
@@ -464,7 +538,7 @@
     onScroll();
 
     // Fade sections in as they scroll into view.
-    var reveals = document.querySelectorAll('.reveal, .gallery-track img');
+    var reveals = document.querySelectorAll('.reveal');
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(
         function (entries) {
@@ -493,6 +567,7 @@
     }
 
     initHomeMotion();
+    initLightbox();
 
     window.__menusReady = true;
     syncToHash();
